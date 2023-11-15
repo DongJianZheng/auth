@@ -8,6 +8,7 @@ import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.baomidou.mybatisplus.extension.activerecord.Model;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 
 import java.io.Serializable;
 
@@ -15,6 +16,7 @@ import java.io.Serializable;
  * 角色菜单表
  * @author djz
  */
+@EqualsAndHashCode(callSuper = true)
 @Data
 @TableName("tb_role_to_menu")
 public class RoleToMenu extends Model<RoleToMenu> {

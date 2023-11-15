@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.baomidou.mybatisplus.extension.activerecord.Model;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 
 import java.io.Serializable;
 
@@ -11,6 +12,7 @@ import java.io.Serializable;
  * 用户电话关系表
  * @author djz
  */
+@EqualsAndHashCode(callSuper = true)
 @Data
 @TableName("tb_info_to_user")
 public class InfoToUser extends Model<InfoToUser> {

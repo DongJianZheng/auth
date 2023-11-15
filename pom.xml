@@ -48,17 +48,6 @@
     </properties>
 
     <profiles>
-        <!-- 环境 -->
-        <profile>
-            <id>test</id>
-            <properties>
-                <profiles.category>test</profiles.category>
-                <trade.business.module>module-test1</trade.business.module>
-            </properties>
-            <activation>
-                <activeByDefault>true</activeByDefault>
-            </activation>
-        </profile>
 
         <!-- 配置环境  -->
         <profile>

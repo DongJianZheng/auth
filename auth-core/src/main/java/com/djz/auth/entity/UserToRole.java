@@ -3,6 +3,7 @@ package com.djz.auth.entity;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.baomidou.mybatisplus.extension.activerecord.Model;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 
 import java.io.Serializable;
 
@@ -10,6 +11,7 @@ import java.io.Serializable;
  * 用户角色关系表
  * @author djz
  */
+@EqualsAndHashCode(callSuper = true)
 @Data
 @TableName("tb_user_to_role")
 public class UserToRole extends Model<UserToRole> {

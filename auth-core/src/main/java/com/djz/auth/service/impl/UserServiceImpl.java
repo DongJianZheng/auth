@@ -51,7 +51,7 @@ public class UserServiceImpl extends ServiceImpl<SystemUserMapper, SysUser> impl
         lambdaQueryWrapper.eq(InfoToUser::getIdentityInfo, loginRequestVO.getIdentity());
         InfoToUser infoToUser = infoToUserService.getOne(lambdaQueryWrapper);
 
-        AssertUtils.notNull(infoToUser, "用户电话信息");
+        AssertUtils.notNull(infoToUser, "用户信息");
 
         LambdaQueryWrapper<SysUser> userQueryWrapper = new LambdaQueryWrapper<>();
         userQueryWrapper.eq(SysUser::getId, infoToUser.getUserNo());

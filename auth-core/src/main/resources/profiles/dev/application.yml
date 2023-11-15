@@ -9,6 +9,8 @@ spring:
     multipart:
       max-file-size: 50MB
       max-request-size: 100MB
+  profiles:
+    active: noMybatis,@profiles.env@
   datasource:
     type: com.alibaba.druid.pool.DruidDataSource
     driverClassName: com.mysql.cj.jdbc.Driver
