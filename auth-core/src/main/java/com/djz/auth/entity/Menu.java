@@ -28,6 +28,9 @@ public class Menu extends Model<Menu> {
      */
     private String parentId;
 
+    /**
+     * 菜单id
+     */
     private String menuId;
 
     /**

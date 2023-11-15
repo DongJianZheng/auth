@@ -2,7 +2,6 @@ package com.djz.auth.service.impl;
 
 
 import cn.hutool.core.util.ObjectUtil;
-import cn.hutool.crypto.digest.BCrypt;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.djz.auth.constant.Constant;
@@ -18,7 +17,7 @@ import com.djz.auth.service.IUserToRoleService;
 import com.djz.auth.vo.LoginRequestVO;
 import com.djz.exception.BusinessException;
 import com.djz.utils.AssertUtils;
-import com.djz.utils.JWTUtil;
+import com.djz.utils.JwtUtil;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
@@ -68,7 +67,7 @@ public class UserServiceImpl extends ServiceImpl<SystemUserMapper, SysUser> impl
     public Map<String, Object> getLoginUserAndMenuInfo(SysUser user) {
         Map<String, Object> result = new HashMap<>(3);
         UserToRole userToRole = userToRoleService.selectByUserNo(user.getId());
-        user.setToken(JWTUtil.sign(user.getId(), user.getPassword()));
+        user.setToken(JwtUtil.sign(user.getId(), user.getPassword()));
         result.put("user",user);
         List<Menu> buttonList = new ArrayList<>();
         List<Menu> retMenuList = new ArrayList<>();

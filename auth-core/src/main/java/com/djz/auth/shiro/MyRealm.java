@@ -9,7 +9,7 @@ import com.djz.auth.service.IMenuService;
 import com.djz.auth.service.IRoleService;
 import com.djz.auth.service.IUserService;
 import com.djz.auth.service.IUserToRoleService;
-import com.djz.utils.JWTUtil;
+import com.djz.utils.JwtUtil;
 import org.apache.shiro.authc.AuthenticationException;
 import org.apache.shiro.authc.AuthenticationInfo;
 import org.apache.shiro.authc.AuthenticationToken;
@@ -55,7 +55,7 @@ public class MyRealm extends AuthorizingRealm {
             this.roleService = SpringUtil.getBean(IRoleService.class);
         }
 
-        String userNo = JWTUtil.getUserNo(principals.toString());
+        String userNo = JwtUtil.getUserNo(principals.toString());
         SysUser user = userService.getById(userNo);
         SimpleAuthorizationInfo simpleAuthorizationInfo = new SimpleAuthorizationInfo();
         if(null != user){
@@ -97,7 +97,7 @@ public class MyRealm extends AuthorizingRealm {
             return new SimpleAuthenticationInfo(token, token, this.getName());
         }
         // 解密获得username，用于和数据库进行对比
-        String userNo = JWTUtil.getUserNo(token);
+        String userNo = JwtUtil.getUserNo(token);
         if (userNo == null) {
             throw new AuthenticationException("token invalid");
         }
@@ -105,7 +105,7 @@ public class MyRealm extends AuthorizingRealm {
         if (userBean == null) {
             throw new AuthenticationException("User didn't existed!");
         }
-        if (! JWTUtil.verify(token, userNo, userBean.getPassword())) {
+        if (! JwtUtil.verify(token, userNo, userBean.getPassword())) {
             throw new AuthenticationException("Username or password error");
         }
         return new SimpleAuthenticationInfo(token, token, this.getName());

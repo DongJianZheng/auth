@@ -11,10 +11,16 @@ import java.util.Date;
 /**
  * @author djz
  */
-public class JWTUtil {
+public class JwtUtil {
 
-    // 过期时间1天
-    private static final long EXPIRE_TIME = 24*60*60*1000;
+    private static final String USER_NO = "userNo";
+
+    private JwtUtil() {}
+
+    /**
+     * 过期时间1天
+     */
+    private static final long EXPIRE_TIME = 24L*60*60*1000;
 
     /**
      * 校验token是否正确
@@ -26,7 +32,7 @@ public class JWTUtil {
         try {
             Algorithm algorithm = Algorithm.HMAC256(secret);
             JWTVerifier verifier = JWT.require(algorithm)
-                    .withClaim("userNo", userNo)
+                    .withClaim(USER_NO, userNo)
                     .build();
             verifier.verify(token);
             return true;
@@ -42,7 +48,7 @@ public class JWTUtil {
     public static String getUserNo(String token) {
         try {
             DecodedJWT jwt = JWT.decode(token);
-            return jwt.getClaim("userNo").asString();
+            return jwt.getClaim(USER_NO).asString();
         } catch (JWTDecodeException e) {
             return null;
         }
@@ -59,7 +65,7 @@ public class JWTUtil {
         Algorithm algorithm = Algorithm.HMAC256(secret);
         // 附带username信息
         return JWT.create()
-                .withClaim("userNo", userNo)
+                .withClaim(USER_NO, userNo)
                 .withExpiresAt(date)
                 .sign(algorithm);
     }

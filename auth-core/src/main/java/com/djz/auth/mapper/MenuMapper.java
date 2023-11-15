@@ -12,5 +12,10 @@ import java.util.List;
  */
 public interface MenuMapper extends BaseMapper<Menu> {
 
+    /**
+     * 通过角色代码查询菜单
+     * @param roleCode
+     * @return
+     */
     List<Menu> findMenuByRoleCode(@Param("roleCode") String roleCode);
 }

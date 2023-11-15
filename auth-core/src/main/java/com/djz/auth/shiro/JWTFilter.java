@@ -3,7 +3,6 @@ package com.djz.auth.shiro;
 
 import com.djz.auth.constant.Constant;
 import com.djz.auth.entity.SysUser;
-import com.djz.auth.service.IUserService;
 import com.djz.exception.BusinessException;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.shiro.SecurityUtils;
@@ -25,7 +24,6 @@ import javax.servlet.http.HttpServletResponse;
 @Slf4j
 public class JWTFilter extends BasicHttpAuthenticationFilter {
 
-    private IUserService userService;
     /**
      * 判断用户是否想要登入。
      * 检测header里面是否包含Authorization字段即可

@@ -15,7 +15,15 @@ import java.util.List;
 public interface SystemUserMapper extends BaseMapper<SysUser> {
 
 
-    //等同于编写一个普通 list 查询，mybatis-plus 自动替你分页
+    /**
+     *
+     * @param page
+     * @param info
+     * @param status
+     * @param startTime
+     * @param endTime
+     * @return
+     */
     List<SysUser> selectPageByConditionUser(Page<SysUser> page, @Param("info") String info,
                                             @Param("status") Integer [] status, @Param("startTime")String startTime, @Param("endTime")String endTime);
 

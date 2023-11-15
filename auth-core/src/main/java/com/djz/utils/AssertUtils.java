@@ -11,6 +11,8 @@ import com.djz.exception.BusinessException;
  */
 public class AssertUtils {
 
+    private AssertUtils() {}
+
     public static void notNull(final Object object, final String name) {
         if (object == null) {
             throw new BusinessException(MessageEnum.EM1_PARAM_NOT_NULL.getResCode(), name + " 不能为空");
