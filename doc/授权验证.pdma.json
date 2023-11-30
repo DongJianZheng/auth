@@ -4,7 +4,7 @@
   "avatar": "",
   "version": "4.2.0",
   "createdTime": "2023-11-15 10:06:41",
-  "updatedTime": "2023-11-15 11:01:21",
+  "updatedTime": "2023-11-30 18:31:06",
   "dbConns": [],
   "profile": {
     "default": {
@@ -227,7 +227,7 @@
         "ServiceImpl": "{{  var today=new Date();\n    var fullYear=today.getFullYear();\n    var month=today.getMonth() + 1;\n    var days=today.getDate();\n    \n    var pkVarName = \"undefinedId\";\n    var pkVarNameU = \"UndefinedId\";\n    var pkFieldKey = \"UNDEFINED\";\n    var pkDataType = \"String\";\n    it.entity.fields.forEach(function(field){\n        if(field.primaryKey){\n            pkFieldKey = field.defKey;\n            pkVarName = it.func.camel(field.defKey,false);\n            pkVarNameU = it.func.camel(field.defKey,true);\n            pkDataType = field[\"type\"];\n            return;\n        }\n    });\n    \n    var pkgName = it.entity.env.base.nameSpace;\n    var beanClass = it.entity.env.base.codeRoot;\n    var beanVarName = beanClass.charAt(0).toLowerCase()+beanClass.slice(1);\n    var serviceClass = beanClass+'Service';\n    var serviceVarName= beanVarName+'Service';\n    var mapperName = beanVarName+'Mapper';\n    \n}}package {{=pkgName}}.service.impl;\n$blankline\nimport cn.hutool.core.util.StrUtil;\nimport org.springframework.beans.factory.annotation.Autowired;\nimport org.springframework.stereotype.Service;\nimport com.baomidou.mybatisplus.core.metadata.IPage;\nimport com.baomidou.mybatisplus.extension.plugins.pagination.Page;\nimport com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;\nimport com.baomidou.mybatisplus.extension.conditions.update.LambdaUpdateChainWrapper;\n\nimport {{=pkgName}}.entity.{{=beanClass}};\nimport {{=pkgName}}.mapper.{{=beanClass}}Mapper;\nimport {{=pkgName}}.service.{{=serviceClass}};\n\n /**\n * {{=it.entity.defName}};({{=it.entity.defKey}})表服务实现类\n * @author : http://www.chiner.pro\n * @date : {{=fullYear}}-{{=month}}-{{=days}}\n */\n@Service\npublic class {{=serviceClass}}Impl implements {{=serviceClass}}{\n    @Autowired\n    private {{=beanClass}}Mapper {{=mapperName}};\n    $blankline\n    /** \n     * 通过ID查询单条数据 \n     *\n     * @param {{=pkVarName}} 主键\n     * @return 实例对象\n     */\n    public {{=beanClass}} queryById({{=pkDataType}} {{=pkVarName}}){\n        return {{=mapperName}}.selectById({{=pkVarName}});\n    }\n    $blankline\n    /**\n     * 分页查询\n     *\n     * @param {{=beanVarName}} 筛选条件\n     * @param current 当前页码\n     * @param size  每页大小\n     * @return\n     */\n    public Page<{{=beanClass}}> paginQuery({{=beanClass}} {{=beanVarName}}, long current, long size){\n        //1. 构建动态查询条件\n        LambdaQueryWrapper<{{=beanClass}}> queryWrapper = new LambdaQueryWrapper<>();\n        {{~it.entity.fields.filter(function(e){return e[\"type\"]===\"String\"&&e.defKey !== pkFieldKey}):field:index}}\n        if(StrUtil.isNotBlank({{=beanVarName}}.get{{=it.func.camel(field.defKey,true)}}())){\n            queryWrapper.eq({{=beanClass}}::get{{=it.func.camel(field.defKey,true)}}, {{=beanVarName}}.get{{=it.func.camel(field.defKey,true)}}());\n        }\n        {{~}}\n\n        //2. 执行分页查询\n        Page<{{=beanClass}}> pagin = new Page<>(current , size , true);\n        IPage<{{=beanClass}}> selectResult = {{=mapperName}}.selectByPage(pagin , queryWrapper);\n        pagin.setPages(selectResult.getPages());\n        pagin.setTotal(selectResult.getTotal());\n        pagin.setRecords(selectResult.getRecords());\n\n        //3. 返回结果\n        return pagin;\n    }\n    $blankline\n    /** \n     * 新增数据\n     *\n     * @param {{=beanVarName}} 实例对象\n     * @return 实例对象\n     */\n    public {{=beanClass}} insert({{=beanClass}} {{=beanVarName}}){\n        {{=mapperName}}.insert({{=beanVarName}});\n        return {{=beanVarName}};\n    }\n    $blankline\n    /** \n     * 更新数据\n     *\n     * @param {{=beanVarName}} 实例对象\n     * @return 实例对象\n     */\n    public {{=beanClass}} update({{=beanClass}} {{=beanVarName}}){\n        //1. 根据条件动态更新\n        LambdaUpdateChainWrapper<{{=beanClass}}> chainWrapper = new LambdaUpdateChainWrapper<{{=beanClass}}>({{=mapperName}});\n        {{~it.entity.fields.filter(function(e){return e[\"type\"]===\"String\"&&e.defKey !== pkFieldKey}):field:index}}\n        if(StrUtil.isNotBlank({{=beanVarName}}.get{{=it.func.camel(field.defKey,true)}}())){\n            chainWrapper.eq({{=beanClass}}::get{{=it.func.camel(field.defKey,true)}}, {{=beanVarName}}.get{{=it.func.camel(field.defKey,true)}}());\n        }\n        {{~}}\n        //2. 设置主键，并更新\n        chainWrapper.set({{=beanClass}}::get{{=pkVarNameU}}, {{=beanVarName}}.get{{=pkVarNameU}}());\n        boolean ret = chainWrapper.update();\n        //3. 更新成功了，查询最最对象返回\n        if(ret){\n            return queryById({{=beanVarName}}.get{{=pkVarNameU}}());\n        }else{\n            return {{=beanVarName}};\n        }\n    }\n    $blankline\n    /** \n     * 通过主键删除数据\n     *\n     * @param {{=pkVarName}} 主键\n     * @return 是否成功\n     */\n    public boolean deleteById({{=pkDataType}} {{=pkVarName}}){\n        int total = {{=mapperName}}.deleteById({{=pkVarName}});\n        return total > 0;\n    }\n}",
         "Mapper": "{{  var today=new Date();\n    var fullYear=today.getFullYear();\n    var month=today.getMonth() + 1;\n    var days=today.getDate();\n    \n    var pkVarName = \"undefinedId\";\n    var pkDataType = \"String\";\n    it.entity.fields.forEach(function(field){\n        if(field.primaryKey){\n            pkVarName = it.func.camel(field.defKey,false);\n            pkDataType = field[\"type\"];\n            return;\n        }\n    });\n    \n    var pkgName = it.entity.env.base.nameSpace;\n    var beanClass = it.entity.env.base.codeRoot;\n    var beanVarName = beanClass.charAt(0).toLowerCase()+beanClass.slice(1);\n    var serviceClass = beanClass+'Service';\n    var serviceVarName= beanVarName+'Service';\n    \n}}package {{=pkgName}}.mapper;\n$blankline\n\nimport com.baomidou.mybatisplus.core.conditions.Wrapper;\nimport com.baomidou.mybatisplus.core.mapper.BaseMapper;\nimport com.baomidou.mybatisplus.core.metadata.IPage;\nimport com.baomidou.mybatisplus.core.toolkit.Constants;\nimport org.apache.ibatis.annotations.Mapper;\nimport org.apache.ibatis.annotations.Param;\nimport {{=pkgName}}.entity.{{=beanClass}};\n$blankline\n\n /**\n * {{=it.entity.defName}};({{=it.entity.defKey}})表数据库访问层\n * @author : http://www.chiner.pro\n * @date : {{=fullYear}}-{{=month}}-{{=days}}\n */\n@Mapper\npublic interface {{=beanClass}}Mapper  extends BaseMapper<{{=beanClass}}>{\n    /** \n     * 分页查询指定行数据\n     *\n     * @param page 分页参数\n     * @param wrapper 动态查询条件\n     * @return 分页对象列表\n     */\n    IPage<{{=beanClass}}> selectByPage(IPage<{{=beanClass}}> page , @Param(Constants.WRAPPER) Wrapper<{{=beanClass}}> wrapper);\n}",
         "Mapper.xml": "{{  var today=new Date();\n    var fullYear=today.getFullYear();\n    var month=today.getMonth() + 1;\n    var days=today.getDate();\n    \n    var pkVarName = \"undefinedId\";\n    var pkDataType = \"String\";\n    var pkField = \"UNDEFINED_ID\";\n    it.entity.fields.forEach(function(field){\n        if(field.primaryKey){\n            pkField = field.defKey;\n            pkVarName = it.func.camel(field.defKey,false);\n            pkDataType = field[\"type\"];\n            return;\n        }\n    });\n    \n    var pkgName = it.entity.env.base.nameSpace;\n    var beanClass = it.entity.env.base.codeRoot;\n    var beanVarName = beanClass.charAt(0).toLowerCase()+beanClass.slice(1);\n    var serviceClass = beanClass+'Service';\n    var serviceVarName= beanVarName+'Service';\n    \n}}<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<!DOCTYPE mapper PUBLIC \"-//mybatis.org//DTD Mapper 3.0//EN\" \"http://mybatis.org/dtd/mybatis-3-mapper.dtd\">\n$blankline\n\n<mapper namespace=\"{{=pkgName}}.mapper.{{=beanClass}}Mapper\">\n     <select id=\"selectByPage\" resultType=\"{{=pkgName}}.entity.{{=beanClass}}\">\n        select * from user ${ew.customSqlSegment}\n    </select>\n</mapper>\n\n",
-        "Entity": "{{  var today=new Date();\n    var fullYear=today.getFullYear();\n    var month=today.getMonth() + 1;\n    var days=today.getDate();\n    \n    var pkVarName = \"undefinedId\";\n    var pkDataType = \"String\";\n    it.entity.fields.forEach(function(field){\n        if(field.primaryKey){\n            pkVarName = it.func.camel(field.defKey,false);\n            pkDataType = field[\"type\"];\n            return;\n        }\n    });\n    \n    var pkgName = it.entity.env.base.nameSpace;\n    var beanClass = it.entity.env.base.codeRoot;\n    var beanVarName = beanClass.charAt(0).toLowerCase()+beanClass.slice(1);\n    var serviceClass = beanClass+'Service';\n    var serviceVarName= beanVarName+'Service';\n    \n}}package {{=pkgName}}.entity;\n$blankline\nimport io.swagger.annotations.ApiModel;\nimport io.swagger.annotations.ApiModelProperty;\nimport com.baomidou.mybatisplus.annotation.TableName;\nimport com.baomidou.mybatisplus.annotation.TableId;\nimport java.io.Serializable;\nimport java.util.Date;\n$blankline\n\n /**\n * {{=it.entity.defName}};{{=it.entity.comment}}\n * @author : http://www.chiner.pro\n * @date : {{=fullYear}}-{{=month}}-{{=days}}\n */\n@ApiModel(value = \"{{=it.entity.defName}}\",description = \"{{=it.entity.comment}}\")\n@TableName(\"{{=it.entity.defKey}}\")\npublic class {{=beanClass}} implements Serializable,Cloneable{\n{{~it.entity.fields:field:index}}\n    /** {{=it.func.join(field.defName,field.comment,';')}} */\n    @ApiModelProperty(name = \"{{=field.defName}}\",notes = \"{{=field.comment}}\")\n    {{? field.primaryKey }}\n    @TableId\n    {{?}}\n    private {{=field.type}} {{=it.func.camel(field.defKey,false)}} ;\n{{~}}\n$blankline\n\n{{~it.entity.fields:field:index}}\n    /** {{=it.func.join(field.defName,field.comment,';')}} */\n    public {{=field.type}} get{{=it.func.camel(field.defKey,true)}}(){\n        return this.{{=it.func.camel(field.defKey,false)}};\n    }\n    /** {{=it.func.join(field.defName,field.comment,';')}} */\n    public void set{{=it.func.camel(field.defKey,true)}}({{=field.type}} {{= it.func.camel(field.defKey,false) }}){\n        this.{{=it.func.camel(field.defKey,false)}}={{=it.func.camel(field.defKey,false)}};\n    }\n{{~}}\n}"
+        "Entity": "package cn.com.chiner.entity;\n$blankline\nimport javax.persistence.*;\nimport java.io.Serializable;\nimport java.util.Date;\nimport lombok.Data;\nimport com.baomidou.mybatisplus.annotation.TableName;\nimport com.baomidou.mybatisplus.annotation.TableField;\n\n$blankline\n{{\n    var today=new Date();\n    var fullYear=today.getFullYear();\n    var month=today.getMonth() + 1;\n    var days=today.getDate();\n}}\n /**\n  * {{=it.func.join(it.entity.defName,it.entity.comment,'-')}}\n  * @author djz\n  */\n@Data \n@TableName(\"{{=it.entity.defKey}}\")\npublic class {{=it.func.camel(it.entity.defKey,true) }} implements Serializable {\n{{~it.entity.fields:field:index}}\n$blankline\n    /** \n     * {{=it.func.join(field.defName,field.comment,';')}} \n     */\n    {{? field.primaryKey }}\n    @TableId\n    {{?}}\n    private {{?it.func.lowerCase(field.type) == 'varchar'}}String{{??it.func.lowerCase(field.type) == 'string'}}String{{??it.func.lowerCase(field.type) == 'char'}}String{{??it.func.lowerCase(field.type) == 'longtext'}}String{{??it.func.lowerCase(field.type) == 'text'}}String{{??it.func.lowerCase(field.type) == 'clob'}}String{{??it.func.lowerCase(field.type) == 'int'}}Integer{{??it.func.lowerCase(field.type) == 'smallint'}}Short{{??it.func.lowerCase(field.type) == 'tinyint'}}Short{{??it.func.lowerCase(field.type) == 'integer'}}Integer{{??it.func.lowerCase(field.type) == 'data'}}Data{{??it.func.lowerCase(field.type) == 'datatime'}}Data{{??it.func.lowerCase(field.type) == 'bigint'}}Long{{??it.func.lowerCase(field.type) == 'decimal'}}BigDecimal{{??}}{{=field.type}}{{?}} {{=field.defKey}};\n    \n\n{{~}}\n$blankline\n\n}"
       },
       {
         "applyFor": "29D1CE08-4C35-4D2D-AAA9-23D93305B52E",
@@ -469,423 +469,125 @@
         "hideInGraph": true
       }
     ],
-    "menuWidth": ""
+    "menuWidth": "275px"
   },
   "entities": [
     {
-      "id": "4D2B5AC3-C32E-4A95-AAE7-FFC5AEFDC2B0",
-      "env": {
-        "base": {
-          "nameSpace": "",
-          "codeRoot": ""
-        }
-      },
-      "defKey": "tb_info_to_user",
-      "defName": "用户电话关系表",
+      "id": "8A8AC35E-73AC-4366-9920-8E482B75CF18",
+      "defKey": "sys_menu",
+      "defName": "菜单管理",
       "comment": "",
-      "properties": {
-        "partitioned by": "(date string)",
-        "row format delimited": "",
-        "fields terminated by ','": "",
-        "collection items terminated by '-'": "",
-        "map keys terminated by ':'": "",
-        "store as textfile;": ""
-      },
-      "nameTemplate": "{defKey}[{defName}]",
-      "notes": {},
-      "headers": [
-        {
-          "refKey": "hideInGraph",
-          "freeze": false,
-          "hideInGraph": true
-        },
-        {
-          "refKey": "defKey",
-          "freeze": true,
-          "hideInGraph": false
-        },
-        {
-          "refKey": "defName",
-          "freeze": true,
-          "hideInGraph": false
-        },
-        {
-          "refKey": "primaryKey",
-          "freeze": false,
-          "hideInGraph": false
-        },
-        {
-          "refKey": "notNull",
-          "freeze": false,
-          "hideInGraph": true
-        },
-        {
-          "refKey": "autoIncrement",
-          "freeze": false,
-          "hideInGraph": true
-        },
-        {
-          "refKey": "domain",
-          "freeze": false,
-          "hideInGraph": true
-        },
-        {
-          "refKey": "type",
-          "freeze": false,
-          "hideInGraph": false
-        },
-        {
-          "refKey": "len",
-          "freeze": false,
-          "hideInGraph": false
-        },
-        {
-          "refKey": "scale",
-          "freeze": false,
-          "hideInGraph": false
-        },
-        {
-          "refKey": "comment",
-          "freeze": false,
-          "hideInGraph": true
-        },
-        {
-          "refKey": "refDict",
-          "freeze": false,
-          "hideInGraph": true
-        },
-        {
-          "refKey": "defaultValue",
-          "freeze": false,
-          "hideInGraph": true
-        },
-        {
-          "refKey": "isStandard",
-          "freeze": false,
-          "hideInGraph": false
-        },
-        {
-          "refKey": "uiHint",
-          "freeze": false,
-          "hideInGraph": true
-        },
-        {
-          "refKey": "extProps",
-          "freeze": false,
-          "hideInGraph": true
-        }
-      ],
+      "properties": {},
       "fields": [
         {
-          "defKey": "id",
-          "defName": "主键",
+          "defKey": "menuId",
+          "defName": "菜单主键",
           "comment": "",
-          "type": "VARCHAR",
-          "len": "",
+          "domain": "",
+          "type": "BIGINT",
+          "len": 20,
           "scale": "",
           "primaryKey": true,
           "notNull": true,
-          "autoIncrement": false,
-          "defaultValue": "",
-          "hideInGraph": false,
-          "domain": "16120F75-6AA7-4483-868D-F07F511BB081",
-          "refDict": "",
-          "uiHint": "",
-          "id": "7EED98B2-23A4-4EF6-9E43-7412D48841FC",
-          "extProps": {}
-        },
-        {
-          "defKey": "identityInfo",
-          "defName": "用户账号",
-          "comment": "",
-          "domain": "",
-          "type": "VARCHAR",
-          "len": 200,
-          "scale": "",
-          "primaryKey": false,
-          "notNull": true,
-          "autoIncrement": false,
+          "autoIncrement": true,
           "defaultValue": "",
           "hideInGraph": false,
           "refDict": "",
-          "uiHint": "",
-          "id": "2FA690B4-B651-4CCC-B789-E59453A15023",
-          "extProps": {}
-        },
-        {
-          "defKey": "userNo",
-          "defName": "用户主键",
-          "comment": "",
-          "domain": "16120F75-6AA7-4483-868D-F07F511BB081",
-          "type": "VARCHAR",
-          "len": "",
-          "scale": "",
-          "primaryKey": false,
-          "notNull": true,
-          "autoIncrement": false,
-          "defaultValue": "",
-          "hideInGraph": false,
-          "refDict": "",
-          "uiHint": "",
-          "id": "24DB7350-C653-4229-93DC-9E72644D3071",
-          "extProps": {}
-        },
-        {
-          "defKey": "identityType",
-          "defName": "登录类型",
-          "comment": "",
-          "domain": "",
-          "type": "INT",
-          "len": 11,
-          "scale": "",
-          "primaryKey": false,
-          "notNull": true,
-          "autoIncrement": false,
-          "defaultValue": "",
-          "hideInGraph": false,
-          "refDict": "",
-          "uiHint": "",
-          "id": "52904319-96A6-4F47-8E3E-88B792249AD1",
-          "extProps": {}
-        }
-      ],
-      "correlations": [],
-      "indexes": []
-    },
-    {
-      "id": "98F46A0C-A59D-459A-8475-2D38FB2DC396",
-      "env": {
-        "base": {
-          "nameSpace": "",
-          "codeRoot": ""
-        }
-      },
-      "defKey": "tb_menu",
-      "defName": "菜单表",
-      "comment": "",
-      "properties": {
-        "partitioned by": "(date string)",
-        "row format delimited": "",
-        "fields terminated by ','": "",
-        "collection items terminated by '-'": "",
-        "map keys terminated by ':'": "",
-        "store as textfile;": ""
-      },
-      "nameTemplate": "{defKey}[{defName}]",
-      "notes": {},
-      "headers": [
-        {
-          "refKey": "hideInGraph",
-          "freeze": false,
-          "hideInGraph": true
-        },
-        {
-          "refKey": "defKey",
-          "freeze": true,
-          "hideInGraph": false
-        },
-        {
-          "refKey": "defName",
-          "freeze": true,
-          "hideInGraph": false
-        },
-        {
-          "refKey": "primaryKey",
-          "freeze": false,
-          "hideInGraph": false
-        },
-        {
-          "refKey": "notNull",
-          "freeze": false,
-          "hideInGraph": true
-        },
-        {
-          "refKey": "autoIncrement",
-          "freeze": false,
-          "hideInGraph": true
-        },
-        {
-          "refKey": "domain",
-          "freeze": false,
-          "hideInGraph": true
-        },
-        {
-          "refKey": "type",
-          "freeze": false,
-          "hideInGraph": false
-        },
-        {
-          "refKey": "len",
-          "freeze": false,
-          "hideInGraph": false
-        },
-        {
-          "refKey": "scale",
-          "freeze": false,
-          "hideInGraph": false
-        },
-        {
-          "refKey": "comment",
-          "freeze": false,
-          "hideInGraph": true
-        },
-        {
-          "refKey": "refDict",
-          "freeze": false,
-          "hideInGraph": true
-        },
-        {
-          "refKey": "defaultValue",
-          "freeze": false,
-          "hideInGraph": true
-        },
-        {
-          "refKey": "isStandard",
-          "freeze": false,
-          "hideInGraph": false
-        },
-        {
-          "refKey": "uiHint",
-          "freeze": false,
-          "hideInGraph": true
-        },
-        {
-          "refKey": "extProps",
-          "freeze": false,
-          "hideInGraph": true
-        }
-      ],
-      "fields": [
-        {
-          "defKey": "id",
-          "defName": "主键",
-          "comment": "",
-          "type": "VARCHAR",
-          "len": "",
-          "scale": "",
-          "primaryKey": true,
-          "notNull": true,
-          "autoIncrement": false,
-          "defaultValue": "",
-          "hideInGraph": false,
-          "refDict": "",
-          "extProps": {},
-          "domain": "16120F75-6AA7-4483-868D-F07F511BB081",
-          "id": "E532C5C4-45BE-47D1-B49C-23DAB0A01E33"
-        },
-        {
-          "defKey": "menuCode",
-          "defName": "菜单代号",
-          "comment": "",
-          "type": "VARCHAR",
-          "len": 64,
-          "scale": "",
-          "primaryKey": false,
-          "notNull": true,
-          "autoIncrement": false,
-          "defaultValue": "",
-          "hideInGraph": false,
-          "domain": "",
-          "refDict": "",
-          "uiHint": "",
-          "id": "DCCBE574-54A5-4946-ADD5-C5C9022BAAFA",
+          "id": "2A50ECD9-BD46-4A0C-B048-03E0B418F4C4",
           "extProps": {}
         },
         {
           "defKey": "parentId",
-          "defName": "父菜单主键",
+          "defName": "父菜单ID",
           "comment": "",
-          "domain": "16120F75-6AA7-4483-868D-F07F511BB081",
-          "type": "VARCHAR",
-          "len": "",
+          "domain": "",
+          "type": "BIGINT",
+          "len": 20,
           "scale": "",
           "primaryKey": false,
-          "notNull": true,
+          "notNull": false,
           "autoIncrement": false,
           "defaultValue": "",
           "hideInGraph": false,
           "refDict": "",
-          "uiHint": "",
-          "id": "9D88D241-44DA-4C57-B5D4-48AA341E322E",
+          "id": "6D55428D-FDB8-4A22-98C5-03A4208CE49E",
           "extProps": {}
         },
         {
           "defKey": "name",
           "defName": "菜单名称",
           "comment": "",
-          "domain": "9092C4E0-1A54-4859-ABBB-5B62DBC27573",
-          "type": "VARCHAR",
-          "len": "",
+          "domain": "",
+          "type": "INT",
+          "len": 11,
           "scale": "",
           "primaryKey": false,
-          "notNull": true,
+          "notNull": false,
           "autoIncrement": false,
           "defaultValue": "",
           "hideInGraph": false,
           "refDict": "",
-          "uiHint": "",
-          "id": "DDC418DF-61DD-4404-BBFB-0A26E00ACEF6",
+          "id": "89DC0510-728A-46D5-A75F-2F9825EFA576",
           "extProps": {}
         },
         {
-          "defKey": "menuType",
-          "defName": "菜单类型",
+          "defKey": "url",
+          "defName": "菜单URL",
           "comment": "",
           "domain": "",
-          "type": "SMALLINT",
-          "len": 6,
+          "type": "VARCHAR",
+          "len": 200,
           "scale": "",
           "primaryKey": false,
-          "notNull": true,
+          "notNull": false,
           "autoIncrement": false,
           "defaultValue": "",
           "hideInGraph": false,
           "refDict": "",
-          "uiHint": "",
-          "id": "24451386-9B72-4B84-A733-0B8D2AD1FA09",
+          "id": "9B393103-86A3-4812-8E1B-AD5439212D06",
           "extProps": {}
         },
         {
-          "defKey": "num",
-          "defName": "菜单的序号",
+          "defKey": "perms",
+          "defName": "授权",
+          "comment": "",
+          "domain": "",
+          "type": "VARCHAR",
+          "len": 500,
+          "scale": "",
+          "primaryKey": false,
+          "notNull": false,
+          "autoIncrement": false,
+          "defaultValue": "",
+          "hideInGraph": false,
+          "refDict": "",
+          "id": "A8167B9F-F75E-4A6A-BEE2-783A236991DE",
+          "extProps": {}
+        },
+        {
+          "defKey": "type",
+          "defName": "类型",
           "comment": "",
           "domain": "",
           "type": "INT",
           "len": 11,
           "scale": "",
           "primaryKey": false,
-          "notNull": true,
-          "autoIncrement": false,
-          "defaultValue": "",
-          "hideInGraph": false,
-          "refDict": "",
-          "uiHint": "",
-          "id": "9AAEFF9D-5C94-435A-9D0F-DF0D50EC82A9",
-          "extProps": {}
-        },
-        {
-          "defKey": "url",
-          "defName": "菜单地址",
-          "comment": "",
-          "type": "VARCHAR",
-          "len": "",
-          "scale": "",
-          "primaryKey": false,
           "notNull": false,
           "autoIncrement": false,
           "defaultValue": "",
           "hideInGraph": false,
           "refDict": "",
-          "extProps": {},
-          "domain": "9092C4E0-1A54-4859-ABBB-5B62DBC27573",
-          "id": "ED4CACA8-3E72-4439-A6CC-250DE2235E44"
+          "id": "BABB9733-E73B-4284-A6AC-B6F86EF43596",
+          "extProps": {}
         },
         {
           "defKey": "icon",
-          "defName": "图标",
+          "defName": "菜单图标",
           "comment": "",
-          "type": "VARCHAR",
-          "len": "",
+          "domain": "",
+          "type": "TINYTEXT",
+          "len": 255,
           "scale": "",
           "primaryKey": false,
           "notNull": false,
@@ -893,448 +595,15 @@
           "defaultValue": "",
           "hideInGraph": false,
           "refDict": "",
-          "extProps": {},
-          "domain": "9092C4E0-1A54-4859-ABBB-5B62DBC27573",
-          "id": "19F72F93-2307-4879-AE75-DDB8238553A8"
-        }
-      ],
-      "correlations": [],
-      "indexes": []
-    },
-    {
-      "id": "1A4D7486-7D17-43D7-8D28-85BC32EEA6EC",
-      "env": {
-        "base": {
-          "nameSpace": "",
-          "codeRoot": ""
-        }
-      },
-      "defKey": "tb_role",
-      "defName": "角色表",
-      "comment": "",
-      "properties": {
-        "partitioned by": "(date string)",
-        "row format delimited": "",
-        "fields terminated by ','": "",
-        "collection items terminated by '-'": "",
-        "map keys terminated by ':'": "",
-        "store as textfile;": ""
-      },
-      "nameTemplate": "{defKey}[{defName}]",
-      "notes": {},
-      "headers": [
-        {
-          "refKey": "hideInGraph",
-          "freeze": false,
-          "hideInGraph": true
-        },
-        {
-          "refKey": "defKey",
-          "freeze": true,
-          "hideInGraph": false
-        },
-        {
-          "refKey": "defName",
-          "freeze": true,
-          "hideInGraph": false
-        },
-        {
-          "refKey": "primaryKey",
-          "freeze": false,
-          "hideInGraph": false
-        },
-        {
-          "refKey": "notNull",
-          "freeze": false,
-          "hideInGraph": true
-        },
-        {
-          "refKey": "autoIncrement",
-          "freeze": false,
-          "hideInGraph": true
-        },
-        {
-          "refKey": "domain",
-          "freeze": false,
-          "hideInGraph": true
-        },
-        {
-          "refKey": "type",
-          "freeze": false,
-          "hideInGraph": false
-        },
-        {
-          "refKey": "len",
-          "freeze": false,
-          "hideInGraph": false
-        },
-        {
-          "refKey": "scale",
-          "freeze": false,
-          "hideInGraph": false
-        },
-        {
-          "refKey": "comment",
-          "freeze": false,
-          "hideInGraph": true
-        },
-        {
-          "refKey": "refDict",
-          "freeze": false,
-          "hideInGraph": true
-        },
-        {
-          "refKey": "defaultValue",
-          "freeze": false,
-          "hideInGraph": true
-        },
-        {
-          "refKey": "isStandard",
-          "freeze": false,
-          "hideInGraph": false
-        },
-        {
-          "refKey": "uiHint",
-          "freeze": false,
-          "hideInGraph": true
-        },
-        {
-          "refKey": "extProps",
-          "freeze": false,
-          "hideInGraph": true
-        }
-      ],
-      "fields": [
-        {
-          "defKey": "roleCode",
-          "defName": "角色代号主键",
-          "comment": "",
-          "type": "VARCHAR",
-          "len": "",
-          "scale": "",
-          "primaryKey": true,
-          "notNull": true,
-          "autoIncrement": false,
-          "defaultValue": "",
-          "hideInGraph": false,
-          "domain": "16120F75-6AA7-4483-868D-F07F511BB081",
-          "refDict": "",
-          "uiHint": "",
-          "id": "86F02ED2-4004-4F3F-93FD-4469845EB410",
+          "id": "4BCA40E3-7B42-4ED3-83D6-23DB423C6408",
           "extProps": {}
         },
         {
-          "defKey": "roleName",
-          "defName": "角色名称",
-          "comment": "",
-          "domain": "9092C4E0-1A54-4859-ABBB-5B62DBC27573",
-          "type": "VARCHAR",
-          "len": "",
-          "scale": "",
-          "primaryKey": false,
-          "notNull": true,
-          "autoIncrement": false,
-          "defaultValue": "",
-          "hideInGraph": false,
-          "refDict": "",
-          "uiHint": "",
-          "id": "08D77A87-D0A7-4719-8906-09F584F02931",
-          "extProps": {}
-        }
-      ],
-      "correlations": [],
-      "indexes": []
-    },
-    {
-      "id": "458F08BE-C7F0-4756-869D-75AC16E0518D",
-      "env": {
-        "base": {
-          "nameSpace": "",
-          "codeRoot": ""
-        }
-      },
-      "defKey": "tb_role_to_menu",
-      "defName": "角色菜单表",
-      "comment": "",
-      "properties": {
-        "partitioned by": "(date string)",
-        "row format delimited": "",
-        "fields terminated by ','": "",
-        "collection items terminated by '-'": "",
-        "map keys terminated by ':'": "",
-        "store as textfile;": ""
-      },
-      "nameTemplate": "{defKey}[{defName}]",
-      "notes": {},
-      "headers": [
-        {
-          "refKey": "hideInGraph",
-          "freeze": false,
-          "hideInGraph": true
-        },
-        {
-          "refKey": "defKey",
-          "freeze": true,
-          "hideInGraph": false
-        },
-        {
-          "refKey": "defName",
-          "freeze": true,
-          "hideInGraph": false
-        },
-        {
-          "refKey": "primaryKey",
-          "freeze": false,
-          "hideInGraph": false
-        },
-        {
-          "refKey": "notNull",
-          "freeze": false,
-          "hideInGraph": true
-        },
-        {
-          "refKey": "autoIncrement",
-          "freeze": false,
-          "hideInGraph": true
-        },
-        {
-          "refKey": "domain",
-          "freeze": false,
-          "hideInGraph": true
-        },
-        {
-          "refKey": "type",
-          "freeze": false,
-          "hideInGraph": false
-        },
-        {
-          "refKey": "len",
-          "freeze": false,
-          "hideInGraph": false
-        },
-        {
-          "refKey": "scale",
-          "freeze": false,
-          "hideInGraph": false
-        },
-        {
-          "refKey": "comment",
-          "freeze": false,
-          "hideInGraph": true
-        },
-        {
-          "refKey": "refDict",
-          "freeze": false,
-          "hideInGraph": true
-        },
-        {
-          "refKey": "defaultValue",
-          "freeze": false,
-          "hideInGraph": true
-        },
-        {
-          "refKey": "isStandard",
-          "freeze": false,
-          "hideInGraph": false
-        },
-        {
-          "refKey": "uiHint",
-          "freeze": false,
-          "hideInGraph": true
-        },
-        {
-          "refKey": "extProps",
-          "freeze": false,
-          "hideInGraph": true
-        }
-      ],
-      "fields": [
-        {
-          "defKey": "id",
-          "defName": "主键",
-          "comment": "",
-          "type": "VARCHAR",
-          "len": "",
-          "scale": "",
-          "primaryKey": true,
-          "notNull": true,
-          "autoIncrement": false,
-          "defaultValue": "",
-          "hideInGraph": false,
-          "domain": "16120F75-6AA7-4483-868D-F07F511BB081",
-          "refDict": "",
-          "uiHint": "",
-          "id": "3FF6FA92-3609-41CC-A6AE-2BB1BF329F88",
-          "extProps": {}
-        },
-        {
-          "defKey": "roleCode",
-          "defName": "角色代号",
-          "comment": "",
-          "domain": "16120F75-6AA7-4483-868D-F07F511BB081",
-          "type": "VARCHAR",
-          "len": "",
-          "scale": "",
-          "primaryKey": false,
-          "notNull": true,
-          "autoIncrement": false,
-          "defaultValue": "",
-          "hideInGraph": false,
-          "refDict": "",
-          "uiHint": "",
-          "id": "84CD5A4D-C9DD-4FF6-8D89-E01E1E8E39A6",
-          "extProps": {}
-        },
-        {
-          "defKey": "menuCode",
-          "defName": "菜单代号",
-          "comment": "",
-          "domain": "16120F75-6AA7-4483-868D-F07F511BB081",
-          "type": "VARCHAR",
-          "len": "",
-          "scale": "",
-          "primaryKey": false,
-          "notNull": true,
-          "autoIncrement": false,
-          "defaultValue": "",
-          "hideInGraph": false,
-          "refDict": "",
-          "uiHint": "",
-          "id": "0A4F8863-34F4-4DDE-B72C-3641EA726229",
-          "extProps": {}
-        }
-      ],
-      "correlations": [],
-      "indexes": []
-    },
-    {
-      "id": "DCE8DCE2-89E4-44F2-9E91-F324F1D8FC00",
-      "env": {
-        "base": {
-          "nameSpace": "",
-          "codeRoot": ""
-        }
-      },
-      "defKey": "tb_user",
-      "defName": "用户表",
-      "comment": "",
-      "properties": {
-        "partitioned by": "(date string)",
-        "row format delimited": "",
-        "fields terminated by ','": "",
-        "collection items terminated by '-'": "",
-        "map keys terminated by ':'": "",
-        "store as textfile;": ""
-      },
-      "nameTemplate": "{defKey}[{defName}]",
-      "notes": {},
-      "headers": [
-        {
-          "refKey": "hideInGraph",
-          "freeze": false,
-          "hideInGraph": true
-        },
-        {
-          "refKey": "defKey",
-          "freeze": true,
-          "hideInGraph": false
-        },
-        {
-          "refKey": "defName",
-          "freeze": true,
-          "hideInGraph": false
-        },
-        {
-          "refKey": "primaryKey",
-          "freeze": false,
-          "hideInGraph": false
-        },
-        {
-          "refKey": "notNull",
-          "freeze": false,
-          "hideInGraph": true
-        },
-        {
-          "refKey": "autoIncrement",
-          "freeze": false,
-          "hideInGraph": true
-        },
-        {
-          "refKey": "domain",
-          "freeze": false,
-          "hideInGraph": true
-        },
-        {
-          "refKey": "type",
-          "freeze": false,
-          "hideInGraph": false
-        },
-        {
-          "refKey": "len",
-          "freeze": false,
-          "hideInGraph": false
-        },
-        {
-          "refKey": "scale",
-          "freeze": false,
-          "hideInGraph": false
-        },
-        {
-          "refKey": "comment",
-          "freeze": false,
-          "hideInGraph": true
-        },
-        {
-          "refKey": "refDict",
-          "freeze": false,
-          "hideInGraph": true
-        },
-        {
-          "refKey": "defaultValue",
-          "freeze": false,
-          "hideInGraph": true
-        },
-        {
-          "refKey": "isStandard",
-          "freeze": false,
-          "hideInGraph": false
-        },
-        {
-          "refKey": "uiHint",
-          "freeze": false,
-          "hideInGraph": true
-        },
-        {
-          "refKey": "extProps",
-          "freeze": false,
-          "hideInGraph": true
-        }
-      ],
-      "fields": [
-        {
-          "defKey": "id",
-          "defName": "主键",
-          "comment": "",
-          "type": "VARCHAR",
-          "len": "",
-          "scale": "",
-          "primaryKey": true,
-          "notNull": true,
-          "autoIncrement": false,
-          "defaultValue": "",
-          "hideInGraph": false,
-          "domain": "16120F75-6AA7-4483-868D-F07F511BB081",
-          "refDict": "",
-          "uiHint": "",
-          "id": "19405068-7DB2-4500-A744-84CABDE9CB5A",
-          "extProps": {}
-        },
-        {
-          "defKey": "mobile",
-          "defName": "电话号码",
+          "defKey": "orderNum",
+          "defName": "排序",
           "comment": "",
           "domain": "",
-          "type": "VARCHAR",
+          "type": "INT",
           "len": 11,
           "scale": "",
           "primaryKey": false,
@@ -1343,49 +612,302 @@
           "defaultValue": "",
           "hideInGraph": false,
           "refDict": "",
-          "uiHint": "",
-          "id": "1F92C276-834D-4943-82D2-BC73D9666C82",
+          "id": "DD6D2DA6-1E21-4A5D-A3CE-087931F93398",
+          "extProps": {}
+        }
+      ],
+      "indexes": [],
+      "nameTemplate": "{defKey}[{defName}]",
+      "headers": [
+        {
+          "freeze": false,
+          "refKey": "hideInGraph",
+          "hideInGraph": true
+        },
+        {
+          "freeze": true,
+          "refKey": "defKey",
+          "hideInGraph": false
+        },
+        {
+          "freeze": true,
+          "refKey": "defName",
+          "hideInGraph": false
+        },
+        {
+          "freeze": false,
+          "refKey": "primaryKey",
+          "hideInGraph": false
+        },
+        {
+          "freeze": false,
+          "refKey": "notNull",
+          "hideInGraph": true
+        },
+        {
+          "freeze": false,
+          "refKey": "autoIncrement",
+          "hideInGraph": true
+        },
+        {
+          "freeze": false,
+          "refKey": "domain",
+          "hideInGraph": true
+        },
+        {
+          "freeze": false,
+          "refKey": "type",
+          "hideInGraph": false
+        },
+        {
+          "freeze": false,
+          "refKey": "len",
+          "hideInGraph": false
+        },
+        {
+          "freeze": false,
+          "refKey": "scale",
+          "hideInGraph": false
+        },
+        {
+          "freeze": false,
+          "refKey": "comment",
+          "hideInGraph": true
+        },
+        {
+          "freeze": false,
+          "refKey": "refDict",
+          "hideInGraph": true
+        },
+        {
+          "freeze": false,
+          "refKey": "defaultValue",
+          "hideInGraph": true
+        },
+        {
+          "freeze": false,
+          "refKey": "isStandard",
+          "hideInGraph": false
+        },
+        {
+          "freeze": false,
+          "refKey": "uiHint",
+          "hideInGraph": true
+        },
+        {
+          "freeze": false,
+          "refKey": "extProps",
+          "hideInGraph": true
+        }
+      ],
+      "correlations": []
+    },
+    {
+      "id": "E08A4D59-A448-4ECC-B43F-111CAB2FC25A",
+      "defKey": "sys_param",
+      "defName": "系统参数",
+      "comment": "",
+      "properties": {},
+      "fields": [
+        {
+          "defKey": "id",
+          "defName": "主键;",
+          "comment": "",
+          "domain": "",
+          "type": "BIGINT",
+          "len": 20,
+          "scale": "",
+          "primaryKey": true,
+          "notNull": true,
+          "autoIncrement": true,
+          "defaultValue": "",
+          "hideInGraph": false,
+          "refDict": "",
+          "id": "B889C45A-6300-4E7E-870D-8941DE55EE28",
           "extProps": {}
         },
         {
-          "defKey": "username",
-          "defName": "姓名",
+          "defKey": "parKey",
+          "defName": "参数键;",
           "comment": "",
           "domain": "",
-          "type": "VARCHAR",
-          "len": 100,
+          "type": "INT",
+          "len": 11,
           "scale": "",
           "primaryKey": false,
-          "notNull": true,
+          "notNull": false,
           "autoIncrement": false,
           "defaultValue": "",
           "hideInGraph": false,
           "refDict": "",
-          "uiHint": "",
-          "id": "6B53AFE5-6D8C-4CBB-B3CF-066C786400CD",
+          "id": "20091CA8-404B-4447-9B9B-77EB69973CDB",
           "extProps": {}
         },
         {
-          "defKey": "password",
-          "defName": "密码",
+          "defKey": "parValue",
+          "defName": "参数值;",
           "comment": "",
-          "domain": "",
+          "domain": "9092C4E0-1A54-4859-ABBB-5B62DBC27573",
           "type": "VARCHAR",
-          "len": 100,
+          "len": "",
           "scale": "",
           "primaryKey": false,
-          "notNull": true,
+          "notNull": false,
           "autoIncrement": false,
           "defaultValue": "",
           "hideInGraph": false,
           "refDict": "",
-          "uiHint": "",
-          "id": "7F66403D-A84F-4EC5-B6E1-E91605999FB4",
+          "id": "70CB824E-4E3A-4828-8FC5-D8FE3E188AA2",
           "extProps": {}
         },
         {
-          "defKey": "email",
-          "defName": "邮箱",
+          "defKey": "menuUrl",
+          "defName": "参数url;",
+          "comment": "",
+          "domain": "9092C4E0-1A54-4859-ABBB-5B62DBC27573",
+          "type": "VARCHAR",
+          "len": "",
+          "scale": "",
+          "primaryKey": false,
+          "notNull": false,
+          "autoIncrement": false,
+          "defaultValue": "",
+          "hideInGraph": false,
+          "refDict": "",
+          "id": "25D48C14-C757-40DE-9D40-CC41C77C1737",
+          "extProps": {}
+        },
+        {
+          "defKey": "type",
+          "defName": "参数类型;",
+          "comment": "",
+          "domain": "9092C4E0-1A54-4859-ABBB-5B62DBC27573",
+          "type": "VARCHAR",
+          "len": "",
+          "scale": "",
+          "primaryKey": false,
+          "notNull": false,
+          "autoIncrement": false,
+          "defaultValue": "",
+          "hideInGraph": false,
+          "refDict": "",
+          "id": "E2DF79DA-6412-4962-BA99-328B8169E4E0",
+          "extProps": {}
+        }
+      ],
+      "indexes": [],
+      "nameTemplate": "{defKey}[{defName}]",
+      "headers": [
+        {
+          "freeze": false,
+          "refKey": "hideInGraph",
+          "hideInGraph": true
+        },
+        {
+          "freeze": true,
+          "refKey": "defKey",
+          "hideInGraph": false
+        },
+        {
+          "freeze": true,
+          "refKey": "defName",
+          "hideInGraph": false
+        },
+        {
+          "freeze": false,
+          "refKey": "primaryKey",
+          "hideInGraph": false
+        },
+        {
+          "freeze": false,
+          "refKey": "notNull",
+          "hideInGraph": true
+        },
+        {
+          "freeze": false,
+          "refKey": "autoIncrement",
+          "hideInGraph": true
+        },
+        {
+          "freeze": false,
+          "refKey": "domain",
+          "hideInGraph": true
+        },
+        {
+          "freeze": false,
+          "refKey": "type",
+          "hideInGraph": false
+        },
+        {
+          "freeze": false,
+          "refKey": "len",
+          "hideInGraph": false
+        },
+        {
+          "freeze": false,
+          "refKey": "scale",
+          "hideInGraph": false
+        },
+        {
+          "freeze": false,
+          "refKey": "comment",
+          "hideInGraph": true
+        },
+        {
+          "freeze": false,
+          "refKey": "refDict",
+          "hideInGraph": true
+        },
+        {
+          "freeze": false,
+          "refKey": "defaultValue",
+          "hideInGraph": true
+        },
+        {
+          "freeze": false,
+          "refKey": "isStandard",
+          "hideInGraph": false
+        },
+        {
+          "freeze": false,
+          "refKey": "uiHint",
+          "hideInGraph": true
+        },
+        {
+          "freeze": false,
+          "refKey": "extProps",
+          "hideInGraph": true
+        }
+      ],
+      "correlations": []
+    },
+    {
+      "id": "09BAE0C9-F0A1-43D9-93B9-804272CF0B58",
+      "defKey": "sys_role",
+      "defName": "角色",
+      "comment": "",
+      "properties": {},
+      "fields": [
+        {
+          "defKey": "roleId",
+          "defName": "角色id;",
+          "comment": "",
+          "domain": "",
+          "type": "BIGINT",
+          "len": 20,
+          "scale": "",
+          "primaryKey": true,
+          "notNull": true,
+          "autoIncrement": true,
+          "defaultValue": "",
+          "hideInGraph": false,
+          "refDict": "",
+          "id": "68172C84-3E29-40B2-9EB5-2AB506F50742",
+          "extProps": {}
+        },
+        {
+          "defKey": "roleName",
+          "defName": "角色名称",
           "comment": "",
           "domain": "",
           "type": "VARCHAR",
@@ -1397,8 +919,41 @@
           "defaultValue": "",
           "hideInGraph": false,
           "refDict": "",
-          "uiHint": "",
-          "id": "C5DEE75A-A0B5-434E-B134-0672CD398AEF",
+          "id": "EB5787B1-7ED9-4B5F-BFB6-7A0C8BC58302",
+          "extProps": {}
+        },
+        {
+          "defKey": "remark",
+          "defName": "备注",
+          "comment": "",
+          "domain": "",
+          "type": "VARCHAR",
+          "len": 100,
+          "scale": "",
+          "primaryKey": false,
+          "notNull": false,
+          "autoIncrement": false,
+          "defaultValue": "",
+          "hideInGraph": false,
+          "refDict": "",
+          "id": "40F36162-7CB6-4893-82D5-911BFD587ED0",
+          "extProps": {}
+        },
+        {
+          "defKey": "createUserId",
+          "defName": "创建者ID",
+          "comment": "",
+          "domain": "",
+          "type": "BIGINT",
+          "len": 20,
+          "scale": "",
+          "primaryKey": false,
+          "notNull": false,
+          "autoIncrement": false,
+          "defaultValue": "",
+          "hideInGraph": false,
+          "refDict": "",
+          "id": "A9F53132-F939-4181-BC5F-E0FF390CC3BA",
           "extProps": {}
         },
         {
@@ -1410,197 +965,620 @@
           "len": "",
           "scale": "",
           "primaryKey": false,
-          "notNull": true,
+          "notNull": false,
           "autoIncrement": false,
           "defaultValue": "",
           "hideInGraph": false,
           "refDict": "",
-          "uiHint": "",
-          "id": "B215A237-3595-4D6E-8B2C-FFC1F22D163F",
+          "id": "CD8118EC-011C-4CDE-BFB2-8DA031F3B2AD",
+          "extProps": {}
+        }
+      ],
+      "indexes": [],
+      "nameTemplate": "{defKey}[{defName}]",
+      "headers": [
+        {
+          "freeze": false,
+          "refKey": "hideInGraph",
+          "hideInGraph": true
+        },
+        {
+          "freeze": true,
+          "refKey": "defKey",
+          "hideInGraph": false
+        },
+        {
+          "freeze": true,
+          "refKey": "defName",
+          "hideInGraph": false
+        },
+        {
+          "freeze": false,
+          "refKey": "primaryKey",
+          "hideInGraph": false
+        },
+        {
+          "freeze": false,
+          "refKey": "notNull",
+          "hideInGraph": true
+        },
+        {
+          "freeze": false,
+          "refKey": "autoIncrement",
+          "hideInGraph": true
+        },
+        {
+          "freeze": false,
+          "refKey": "domain",
+          "hideInGraph": true
+        },
+        {
+          "freeze": false,
+          "refKey": "type",
+          "hideInGraph": false
+        },
+        {
+          "freeze": false,
+          "refKey": "len",
+          "hideInGraph": false
+        },
+        {
+          "freeze": false,
+          "refKey": "scale",
+          "hideInGraph": false
+        },
+        {
+          "freeze": false,
+          "refKey": "comment",
+          "hideInGraph": true
+        },
+        {
+          "freeze": false,
+          "refKey": "refDict",
+          "hideInGraph": true
+        },
+        {
+          "freeze": false,
+          "refKey": "defaultValue",
+          "hideInGraph": true
+        },
+        {
+          "freeze": false,
+          "refKey": "isStandard",
+          "hideInGraph": false
+        },
+        {
+          "freeze": false,
+          "refKey": "uiHint",
+          "hideInGraph": true
+        },
+        {
+          "freeze": false,
+          "refKey": "extProps",
+          "hideInGraph": true
+        }
+      ],
+      "correlations": []
+    },
+    {
+      "id": "9CBB7755-6863-4E9F-B6AE-F7EB97171EC3",
+      "defKey": "sys_role_menu",
+      "defName": "角色与菜单对应关系",
+      "comment": "",
+      "properties": {},
+      "fields": [
+        {
+          "defKey": "id",
+          "defName": "主键;",
+          "comment": "",
+          "domain": "",
+          "type": "BIGINT",
+          "len": 20,
+          "scale": "",
+          "primaryKey": true,
+          "notNull": true,
+          "autoIncrement": true,
+          "defaultValue": "",
+          "hideInGraph": false,
+          "refDict": "",
+          "id": "7041A3F9-6782-4A9E-9424-950775DA73CF",
+          "extProps": {}
+        },
+        {
+          "defKey": "roleId",
+          "defName": "角色ID",
+          "comment": "",
+          "domain": "",
+          "type": "BIGINT",
+          "len": 20,
+          "scale": "",
+          "primaryKey": false,
+          "notNull": false,
+          "autoIncrement": false,
+          "defaultValue": "",
+          "hideInGraph": false,
+          "refDict": "",
+          "id": "52E8C732-0367-450E-A0C3-4D17024D7F0A",
+          "extProps": {}
+        },
+        {
+          "defKey": "menuId",
+          "defName": "菜单ID",
+          "comment": "",
+          "domain": "",
+          "type": "BIGINT",
+          "len": 20,
+          "scale": "",
+          "primaryKey": false,
+          "notNull": false,
+          "autoIncrement": false,
+          "defaultValue": "",
+          "hideInGraph": false,
+          "refDict": "",
+          "id": "895D6D57-3A7F-42CD-BB1C-40A5E4607A0E",
+          "extProps": {}
+        }
+      ],
+      "indexes": [],
+      "nameTemplate": "{defKey}[{defName}]",
+      "headers": [
+        {
+          "freeze": false,
+          "refKey": "hideInGraph",
+          "hideInGraph": true
+        },
+        {
+          "freeze": true,
+          "refKey": "defKey",
+          "hideInGraph": false
+        },
+        {
+          "freeze": true,
+          "refKey": "defName",
+          "hideInGraph": false
+        },
+        {
+          "freeze": false,
+          "refKey": "primaryKey",
+          "hideInGraph": false
+        },
+        {
+          "freeze": false,
+          "refKey": "notNull",
+          "hideInGraph": true
+        },
+        {
+          "freeze": false,
+          "refKey": "autoIncrement",
+          "hideInGraph": true
+        },
+        {
+          "freeze": false,
+          "refKey": "domain",
+          "hideInGraph": true
+        },
+        {
+          "freeze": false,
+          "refKey": "type",
+          "hideInGraph": false
+        },
+        {
+          "freeze": false,
+          "refKey": "len",
+          "hideInGraph": false
+        },
+        {
+          "freeze": false,
+          "refKey": "scale",
+          "hideInGraph": false
+        },
+        {
+          "freeze": false,
+          "refKey": "comment",
+          "hideInGraph": true
+        },
+        {
+          "freeze": false,
+          "refKey": "refDict",
+          "hideInGraph": true
+        },
+        {
+          "freeze": false,
+          "refKey": "defaultValue",
+          "hideInGraph": true
+        },
+        {
+          "freeze": false,
+          "refKey": "isStandard",
+          "hideInGraph": false
+        },
+        {
+          "freeze": false,
+          "refKey": "uiHint",
+          "hideInGraph": true
+        },
+        {
+          "freeze": false,
+          "refKey": "extProps",
+          "hideInGraph": true
+        }
+      ],
+      "correlations": []
+    },
+    {
+      "id": "B0096DFF-6C56-4592-8D6E-3CDC52539ECE",
+      "defKey": "sys_user",
+      "defName": "用户",
+      "comment": "",
+      "properties": {},
+      "fields": [
+        {
+          "defKey": "userId",
+          "defName": "主键",
+          "comment": "",
+          "domain": "",
+          "type": "BIGINT",
+          "len": 20,
+          "scale": "",
+          "primaryKey": true,
+          "notNull": true,
+          "autoIncrement": true,
+          "defaultValue": "",
+          "hideInGraph": false,
+          "refDict": "",
+          "id": "502C3BA6-CEC1-49C7-A31A-D83B4E449381",
+          "extProps": {}
+        },
+        {
+          "defKey": "username",
+          "defName": "用户名",
+          "comment": "",
+          "domain": "",
+          "type": "TINYTEXT",
+          "len": 255,
+          "scale": "",
+          "primaryKey": false,
+          "notNull": false,
+          "autoIncrement": false,
+          "defaultValue": "",
+          "hideInGraph": false,
+          "refDict": "",
+          "id": "71DF7FCE-A25C-45B6-9020-07B5CC29052E",
+          "extProps": {}
+        },
+        {
+          "defKey": "password",
+          "defName": "密码",
+          "comment": "",
+          "domain": "9092C4E0-1A54-4859-ABBB-5B62DBC27573",
+          "type": "VARCHAR",
+          "len": "",
+          "scale": "",
+          "primaryKey": false,
+          "notNull": false,
+          "autoIncrement": false,
+          "defaultValue": "",
+          "hideInGraph": false,
+          "refDict": "",
+          "id": "6F3ABE1E-9A15-4D90-BC52-5B8D5584AE05",
+          "extProps": {}
+        },
+        {
+          "defKey": "email",
+          "defName": "邮箱",
+          "comment": "",
+          "domain": "",
+          "type": "VARCHAR",
+          "len": 50,
+          "scale": "",
+          "primaryKey": false,
+          "notNull": false,
+          "autoIncrement": false,
+          "defaultValue": "",
+          "hideInGraph": false,
+          "refDict": "",
+          "id": "B1596A6A-164A-4DA1-8FBE-9F95D3199666",
+          "extProps": {}
+        },
+        {
+          "defKey": "salt",
+          "defName": "密码盐",
+          "comment": "",
+          "domain": "",
+          "type": "VARCHAR",
+          "len": 50,
+          "scale": "",
+          "primaryKey": false,
+          "notNull": false,
+          "autoIncrement": false,
+          "defaultValue": "",
+          "hideInGraph": false,
+          "refDict": "",
+          "id": "5C6BAD59-9C9D-4A14-9B27-5EBE1858757F",
+          "extProps": {}
+        },
+        {
+          "defKey": "createUserId",
+          "defName": "创建者Id",
+          "comment": "",
+          "domain": "",
+          "type": "BIGINT",
+          "len": 20,
+          "scale": "",
+          "primaryKey": false,
+          "notNull": false,
+          "autoIncrement": false,
+          "defaultValue": "",
+          "hideInGraph": false,
+          "refDict": "",
+          "id": "DF1105B3-7EBF-4D0B-B621-371EDC63E1C3",
+          "extProps": {}
+        },
+        {
+          "defKey": "createTime",
+          "defName": "创建时间",
+          "comment": "",
+          "domain": "7CFFA0D3-6A93-4DDC-BC10-DF21211064DC",
+          "type": "DATETIME",
+          "len": "",
+          "scale": "",
+          "primaryKey": false,
+          "notNull": false,
+          "autoIncrement": false,
+          "defaultValue": "",
+          "hideInGraph": false,
+          "refDict": "",
+          "id": "818A53E8-6DFA-44BB-B388-8EFB84666C15",
           "extProps": {}
         },
         {
           "defKey": "status",
           "defName": "状态",
           "comment": "",
+          "domain": "",
           "type": "SMALLINT",
           "len": 6,
           "scale": "",
           "primaryKey": false,
-          "notNull": true,
+          "notNull": false,
           "autoIncrement": false,
           "defaultValue": "",
           "hideInGraph": false,
           "refDict": "",
-          "extProps": {},
-          "domain": "",
-          "id": "34C9D6E6-5EA2-4C38-85F1-F43359E60C59"
+          "id": "C01EBC8B-559B-4FEE-BF1A-7F43938217AE",
+          "extProps": {}
         }
       ],
-      "correlations": [],
-      "indexes": []
-    },
-    {
-      "id": "925978C3-093B-4A60-8D32-87B0A1C75810",
-      "env": {
-        "base": {
-          "nameSpace": "",
-          "codeRoot": ""
-        }
-      },
-      "defKey": "tb_user_to_role",
-      "defName": "用户角色关系表",
-      "comment": "",
-      "properties": {
-        "partitioned by": "(date string)",
-        "row format delimited": "",
-        "fields terminated by ','": "",
-        "collection items terminated by '-'": "",
-        "map keys terminated by ':'": "",
-        "store as textfile;": ""
-      },
+      "indexes": [],
       "nameTemplate": "{defKey}[{defName}]",
-      "notes": {},
       "headers": [
         {
+          "freeze": false,
           "refKey": "hideInGraph",
-          "freeze": false,
           "hideInGraph": true
         },
         {
+          "freeze": true,
           "refKey": "defKey",
-          "freeze": true,
           "hideInGraph": false
         },
         {
+          "freeze": true,
           "refKey": "defName",
-          "freeze": true,
           "hideInGraph": false
         },
         {
+          "freeze": false,
           "refKey": "primaryKey",
-          "freeze": false,
           "hideInGraph": false
         },
         {
+          "freeze": false,
           "refKey": "notNull",
-          "freeze": false,
           "hideInGraph": true
         },
         {
+          "freeze": false,
           "refKey": "autoIncrement",
-          "freeze": false,
           "hideInGraph": true
         },
         {
+          "freeze": false,
           "refKey": "domain",
-          "freeze": false,
           "hideInGraph": true
         },
         {
+          "freeze": false,
           "refKey": "type",
-          "freeze": false,
           "hideInGraph": false
         },
         {
+          "freeze": false,
           "refKey": "len",
-          "freeze": false,
           "hideInGraph": false
         },
         {
+          "freeze": false,
           "refKey": "scale",
-          "freeze": false,
           "hideInGraph": false
         },
         {
+          "freeze": false,
           "refKey": "comment",
-          "freeze": false,
           "hideInGraph": true
         },
         {
+          "freeze": false,
           "refKey": "refDict",
-          "freeze": false,
           "hideInGraph": true
         },
         {
+          "freeze": false,
           "refKey": "defaultValue",
-          "freeze": false,
           "hideInGraph": true
         },
         {
-          "refKey": "isStandard",
           "freeze": false,
+          "refKey": "isStandard",
           "hideInGraph": false
         },
         {
-          "refKey": "uiHint",
           "freeze": false,
+          "refKey": "uiHint",
           "hideInGraph": true
         },
         {
-          "refKey": "extProps",
           "freeze": false,
+          "refKey": "extProps",
           "hideInGraph": true
         }
       ],
+      "correlations": []
+    },
+    {
+      "id": "28774A48-F408-43D6-B326-F9FB8125EB0E",
+      "defKey": "sys_user_role",
+      "defName": "用户与角色对应关系",
+      "comment": "",
+      "properties": {},
       "fields": [
         {
           "defKey": "id",
-          "defName": "主键",
-          "comment": "",
-          "type": "VARCHAR",
-          "len": "",
+          "defName": "",
+          "comment": null,
+          "domain": "",
+          "type": "BIGINT",
+          "len": 20,
           "scale": "",
           "primaryKey": true,
           "notNull": true,
-          "autoIncrement": false,
+          "autoIncrement": true,
           "defaultValue": "",
           "hideInGraph": false,
-          "domain": "16120F75-6AA7-4483-868D-F07F511BB081",
           "refDict": "",
-          "uiHint": "",
-          "id": "72B20AB9-9A0B-4FF6-AF72-6EE7798231CD",
+          "id": "AA977D4F-B67D-45AE-BF95-D8520EFFA509",
           "extProps": {}
         },
         {
-          "defKey": "userNo",
-          "defName": "用户编号",
+          "defKey": "userId",
+          "defName": "用户ID",
           "comment": "",
-          "domain": "16120F75-6AA7-4483-868D-F07F511BB081",
-          "type": "VARCHAR",
-          "len": "",
+          "domain": "",
+          "type": "BIGINT",
+          "len": 20,
           "scale": "",
           "primaryKey": false,
-          "notNull": true,
+          "notNull": false,
           "autoIncrement": false,
           "defaultValue": "",
           "hideInGraph": false,
           "refDict": "",
-          "uiHint": "",
-          "id": "89A9F2F8-875C-43E1-A6B4-15321C75196C",
+          "id": "7271E9EE-45E4-41A2-9152-2D17698BFB8F",
           "extProps": {}
         },
         {
-          "defKey": "roleCode",
-          "defName": "角色代号",
+          "defKey": "roleId",
+          "defName": "角色ID",
           "comment": "",
-          "domain": "16120F75-6AA7-4483-868D-F07F511BB081",
-          "type": "VARCHAR",
-          "len": "",
+          "domain": "",
+          "type": "BIGINT",
+          "len": 20,
           "scale": "",
           "primaryKey": false,
-          "notNull": true,
+          "notNull": false,
           "autoIncrement": false,
           "defaultValue": "",
           "hideInGraph": false,
           "refDict": "",
-          "uiHint": "",
-          "id": "F29B4E37-5D41-40AF-92B7-3480D0F51A4C",
+          "id": "5D098D25-7163-4D4B-B58A-7D49D4B2385B",
           "extProps": {}
         }
       ],
-      "correlations": [],
-      "indexes": []
+      "indexes": [],
+      "nameTemplate": "{defKey}[{defName}]",
+      "headers": [
+        {
+          "freeze": false,
+          "refKey": "hideInGraph",
+          "hideInGraph": true
+        },
+        {
+          "freeze": true,
+          "refKey": "defKey",
+          "hideInGraph": false
+        },
+        {
+          "freeze": true,
+          "refKey": "defName",
+          "hideInGraph": false
+        },
+        {
+          "freeze": false,
+          "refKey": "primaryKey",
+          "hideInGraph": false
+        },
+        {
+          "freeze": false,
+          "refKey": "notNull",
+          "hideInGraph": true
+        },
+        {
+          "freeze": false,
+          "refKey": "autoIncrement",
+          "hideInGraph": true
+        },
+        {
+          "freeze": false,
+          "refKey": "domain",
+          "hideInGraph": true
+        },
+        {
+          "freeze": false,
+          "refKey": "type",
+          "hideInGraph": false
+        },
+        {
+          "freeze": false,
+          "refKey": "len",
+          "hideInGraph": false
+        },
+        {
+          "freeze": false,
+          "refKey": "scale",
+          "hideInGraph": false
+        },
+        {
+          "freeze": false,
+          "refKey": "comment",
+          "hideInGraph": true
+        },
+        {
+          "freeze": false,
+          "refKey": "refDict",
+          "hideInGraph": true
+        },
+        {
+          "freeze": false,
+          "refKey": "defaultValue",
+          "hideInGraph": true
+        },
+        {
+          "freeze": false,
+          "refKey": "isStandard",
+          "hideInGraph": false
+        },
+        {
+          "freeze": false,
+          "refKey": "uiHint",
+          "hideInGraph": true
+        },
+        {
+          "freeze": false,
+          "refKey": "extProps",
+          "hideInGraph": true
+        }
+      ],
+      "correlations": []
     }
   ],
   "views": [],
@@ -1610,12 +1588,12 @@
       "defKey": "授权",
       "defName": "授权",
       "refEntities": [
-        "4D2B5AC3-C32E-4A95-AAE7-FFC5AEFDC2B0",
-        "98F46A0C-A59D-459A-8475-2D38FB2DC396",
-        "1A4D7486-7D17-43D7-8D28-85BC32EEA6EC",
-        "458F08BE-C7F0-4756-869D-75AC16E0518D",
-        "DCE8DCE2-89E4-44F2-9E91-F324F1D8FC00",
-        "925978C3-093B-4A60-8D32-87B0A1C75810"
+        "8A8AC35E-73AC-4366-9920-8E482B75CF18",
+        "E08A4D59-A448-4ECC-B43F-111CAB2FC25A",
+        "09BAE0C9-F0A1-43D9-93B9-804272CF0B58",
+        "9CBB7755-6863-4E9F-B6AE-F7EB97171EC3",
+        "B0096DFF-6C56-4592-8D6E-3CDC52539ECE",
+        "28774A48-F408-43D6-B326-F9FB8125EB0E"
       ],
       "refViews": [],
       "refDiagrams": [],
