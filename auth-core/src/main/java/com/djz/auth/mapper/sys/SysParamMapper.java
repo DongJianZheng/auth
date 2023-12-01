@@ -3,7 +3,6 @@ package com.djz.auth.mapper.sys;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.djz.auth.entity.sys.SysParam;
-import org.apache.ibatis.annotations.Mapper;
 
 /**
  * <p>
@@ -12,7 +11,6 @@ import org.apache.ibatis.annotations.Mapper;
  *
  * @author djz
  **/
-@Mapper
 public interface SysParamMapper extends BaseMapper<SysParam> {
 
 }

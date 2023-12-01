@@ -12,49 +12,29 @@ spring:
   profiles:
     active: noMybatis,@profiles.env@
   datasource:
-    type: com.alibaba.druid.pool.DruidDataSource
-    driverClassName: com.mysql.cj.jdbc.Driver
-    druid:
-      url: jdbc:mysql://localhost:3306/auth?allowMultiQueries=true&useUnicode=true&characterEncoding=UTF-8&useSSL=false&serverTimezone=GMT
-      username: root
-      password: 123456
-      initial-size: 10
-      max-active: 100
-      min-idle: 10
-      max-wait: 60000
-      pool-prepared-statements: true
-      max-pool-prepared-statement-per-connection-size: 20
-      time-between-eviction-runs-millis: 60000
-      min-evictable-idle-time-millis: 300000
-      #validation-query: SELECT 1 FROM DUAL
-      test-while-idle: true
-      test-on-borrow: false
-      test-on-return: false
-      # enabled为true是，页面可以访问监控
-      stat-view-servlet:
-        enabled: false
-        url-pattern: /druid/*
-        #login-username: admin
-        #login-password: admin
-      filter:
-        stat:
-          enabled: false
-          log-slow-sql: true
-          slow-sql-millis: 1000
-          merge-sql: false
-        wall:
-          enabled: false
-          config:
-            multi-statement-allow: true
-
+    dynamic:
+      primary: master # 指定主数据源的名称
+      datasource:
+        master: # 主数据源配置
+          driver-class-name: org.sqlite.JDBC
+          url: jdbc:sqlite::resource:static/auth.sqlite
+          druid:
+            initial-size: 5
+            # druid不支持sqlite的wall，所以需要控制druid在该数据源的filters
+            filters: stat
+#        main: # 主数据源配置
+#          driver-class-name: com.mysql.cj.jdbc.Driver
+#          url: jdbc:mysql://localhost:3306/auth?allowMultiQueries=true&useUnicode=true&characterEncoding=UTF-8&useSSL=false&serverTimezone=GMT
+#          username: root
+#          password: 123456
 mybatis-plus:
   # 如果是放在src/main/java目录下 classpath:/com/yourpackage/*/mapper/*Mapper.xml
   # 如果是放在resource目录 classpath:/mapper/*Mapper.xml
   mapper-locations:
-    - classpath*:/com/djz/**/*Mapper.xml
     - classpath*:/mapper/**/*Mapper.xml
   #实体扫描，多个package用逗号或者分号分隔
   #  typeAliasesPackage: com.hgsoft.*.*.*.entity
+  type-handlers-package: com.djz.auth.config
   global-config:
     db-config:
       #主键类型  0:"数据库ID自增", 1:"用户输入ID",2:"全局唯一ID (数字类型唯一ID)", 3:"全局唯一ID UUID";
@@ -77,18 +57,10 @@ mybatis-plus:
       #    sql-injector: com.baomidou.mybatisplus.mapper.LogicSqlInjector
       #自定义填充策略接口实现
     #    meta-object-handler: com.baomidou.springboot.MyMetaObjectHandler
+
   configuration:
     #配置返回数据库(column下划线命名&&返回java实体是驼峰命名)，自动匹配无需as（没开启这个，SQL需要写as： select user_id as userId）
     map-underscore-to-camel-case: false
     cache-enabled: false
     #配置JdbcTypeForNull, oracle数据库必须配置
     jdbc-type-for-null: 'null'
-
-######################### 日志配置 ###########################
-# 日志保存路径,与spring.application.name结合则为完整的日志路径
-#logging:
-#  config: classpath:logback-spring.xml # jar包分离模式时配置成config: config/logback-spring.xml,否则logback将不起作用
-#  file:
-#    path: ./logs
-#  level:
-#    root: debug

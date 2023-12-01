@@ -3,7 +3,6 @@ package com.djz.auth.mapper.sys;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.djz.auth.entity.sys.SysUser;
-import org.apache.ibatis.annotations.Mapper;
 
 import java.util.List;
 
@@ -14,7 +13,7 @@ import java.util.List;
  *
  * @author djz
  **/
-@Mapper
+
 public interface SysUserMapper extends BaseMapper<SysUser> {
 
     /**

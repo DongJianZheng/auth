@@ -5,8 +5,11 @@ import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
+import org.apache.ibatis.type.LocalDateTimeTypeHandler;
 
 import java.io.Serializable;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.List;
 
@@ -54,7 +57,6 @@ public class SysUser implements Serializable {
      * 创建者Id
      */
     private Long createUserId;
-
     /**
      * 创建时间
      */
